@@ -1,24 +1,19 @@
 import { Router } from "express";
+import { BookController } from "../controller/books.js";
 
 export const bookRouter = Router();
 
 //get all books
-bookRouter.get('/', (req, res)=>{
-    res.send(path.join('public','index.html')) 
-})
+bookRouter.get('/', BookController.getAll)
 
 /* get only one book */
-bookRouter.get('/:id',(req, res)=>{
-})
+bookRouter.get('/:id',BookController.getById)
 
 // create a new book
-bookRouter.post('/',(req, res)=>{
-})
+bookRouter.post('/',BookController.create)
 
 //update a book 
-bookRouter.patch('/:id', (req, res)=>{
-})
+bookRouter.patch('/:id', BookController.update)
 
 //delete a book
-bookRouter.delete('/:id', (req, res)=>{
-})
+bookRouter.delete('/:id', BookController.delete)
