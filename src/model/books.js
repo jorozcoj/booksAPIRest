@@ -4,6 +4,7 @@ import connection from "../../config/dbclient.js";
 export class BookModel {
   static async getAll({ name, author }) {
     if (name) {
+      //filter by name
       const lowerCaseName = name.toLowerCase();
       const [filtered] = await connection.query(
         "select BIN_TO_UUID(id), name, author, year, cover from book where lower(name) like ? ",
@@ -11,6 +12,7 @@ export class BookModel {
       );
       return filtered;
     } else if (author) {
+      //filter by author
       const lowerCaseAuthor = author.toLowerCase();
       const [filtered] = await connection.query(
         "select BIN_TO_UUID(id), name, author, year, cover from book where lower(author) like ? ",
@@ -48,7 +50,7 @@ export class BookModel {
       throw new Error("Error creating book");
     }
     const [books] = await connection.query(
-      "select name, author, year, cover from book where id= UUID_TO_BIN(?)",
+      "select BIN_TO_UUID(id) id, name, author, year, cover from book where id= UUID_TO_BIN(?)",
       [uuid]
     );
     return books[0];
@@ -85,7 +87,7 @@ export class BookModel {
 
       // Return the book updated
       const [bookUpdated] = await connection.query(
-        `SELECT name, author, year, cover FROM book WHERE id = UUID_TO_BIN(?)`,
+        `SELECT BIN_TO_UUID(id) id, name, author, year, cover FROM book WHERE id = UUID_TO_BIN(?)`,
         [id]
       );
 
@@ -97,23 +99,18 @@ export class BookModel {
   }
 
   static async delete({ id }) {
-    const [books] = await connection.query(
-        "DELETE from book where BIN_TO_UUID(id)=?",
-        [id]
-      );
-    /* Const [uuidResult] = await connection.query("select UUID() uuid;");
-    const [{ uuid }] = uuidResult;
     if (!id) {
-      throw new Error("Insert a correct Id");
+      throw new Error("insert a correct id");
     }
-    try {
-      await connection.query(
-        `DELETE FROM book where id =?;`,
-        [uuid],       
-      );
-    } catch (error) {
-      console.log("The book couldn't be deleted", error);
-      throw new Error("The book couldn't be deleted");
-    }*/
-  } 
+    //verify if book exits
+    const [books] = await connection.query(
+      "select * from book where id = UUID_TO_BIN(?)",
+      [id]
+    );
+    if (books.length === 0) {
+      throw new Error("Book not found");
+    }
+    await connection.query("delete from book where BIN_TO_UUID(id)=?", [id]);
+    return "the book was deleted";
+  }
 }

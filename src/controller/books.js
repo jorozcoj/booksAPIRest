@@ -45,15 +45,8 @@ export class BookController {
   static async delete(req, res) {
     const { id } = req.params;
     const result = await BookModel.delete({ id });
-    if (!result.success) {
-        return res.status(404).json({ error: JSON.parse(result.error.message) })
-    }
-    return res.json({message:"Book deleted"})
+    if (result) return res.json(result);
 
-
-    /* if (result === false) {
-      return res.status(404).json({ message:"Book not found" });
-    } */
-   
+    res.status(404).send("<h1>Movie not deleted</h1>");
   }
 }
